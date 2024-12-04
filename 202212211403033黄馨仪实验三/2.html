@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>森林中的动物</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* 隐藏滚动条 */
+            background-color: #87CEEB; /* 背景色为天蓝色，模拟天空 */
+        }
+        /* 树木的样式 */
+        .tree {
+            position: absolute;
+            bottom: 0;
+            width: 50px;
+            height: 100px;
+            background-color: #8B4513; /* 树干的颜色 */
+            border-radius: 10px 10px 0 0; /* 顶部圆角 */
+        }
+        /* 树叶的样式 */
+        .leaf {
+            position: absolute;
+            bottom: 100%; /* 使叶子悬空 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background-color: #228B22; /* 叶子的颜色 */
+            border-radius: 50%; /* 叶子为圆形 */
+            animation: sway 3s infinite alternate; /* 叶子摇摆动画 */
+        }
+        @keyframes sway {
+            0% {
+                transform: translate(-50%, 0);
+            }
+            100% {
+                transform: translate(-50%, 10px);
+            }
+        }
+        /* 动物的样式 */
+        .animal {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: orange; /* 动物的颜色 */
+            border-radius: 50%; /* 动物为圆形 */
+            transition: transform 0.5s; /* 添加平滑过渡效果 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 树木元素 -->
+    <div class="tree" style="left: 20%;"><div class="leaf"></div></div>
+    <div class="tree" style="left: 50%;"><div class="leaf"></div></div>
+    <div class="tree" style="left: 80%;"><div class="leaf"></div></div>
+    <!-- 动物元素 -->
+    <div class="animal" id="animal" style="top: 70%; left: 40%;"></div>
+    <script>
+        const animal = document.getElementById('animal');
+        // 点击事件：移动动物到随机位置
+        animal.addEventListener('click', () => {
+            const randomX = Math.random() * (window.innerWidth - 40); // 随机X坐标
+            const randomY = Math.random() * (window.innerHeight - 40); // 随机Y坐标
+            animal.style.transform = `translate(${randomX}px, ${randomY}px)`; // 移动物体
+        });
+    </script>
+</body>
+</html>
