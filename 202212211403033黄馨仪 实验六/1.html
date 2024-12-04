@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>球体与Phong光照模型</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 初始化场景、相机和渲染器
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 任务a：绘制一个球体
+        const geometry = new THREE.SphereGeometry(5, 32, 32); // 创建球体几何体
+        const material = new THREE.MeshPhongMaterial({
+            color: 0x156289, // 球体颜色
+            shininess: 100 // 高光反射强度
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+
+        // 添加一个平面作为地面
+        const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
+        const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = - Math.PI / 2;
+        plane.position.y = -5;
+        scene.add(plane);
+
+        // 任务b：添加Phong光照模型
+        // 环境光
+        const ambientLight = new THREE.AmbientLight(0x404040, 1); // 灰色环境光
+        scene.add(ambientLight);
+
+        // 定向光（模拟太阳光）
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // 白色光
+        directionalLight.position.set(10, 10, 10); // 光源位置
+        directionalLight.castShadow = true; // 启用阴影
+        scene.add(directionalLight);
+
+        // 设置阴影属性
+        renderer.shadowMap.enabled = true;
+        sphere.castShadow = true; // 球体投射阴影
+        plane.receiveShadow = true; // 地面接收阴影
+
+        // 相机位置
+        camera.position.z = 15;
+
+        // 渲染动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 球体旋转效果
+            sphere.rotation.x += 0.01;
+            sphere.rotation.y += 0.01;
+
+            // 渲染场景
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 窗口大小变化时，调整渲染器和相机
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
