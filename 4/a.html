@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draw a Square at Specified Position</title>
+<style>
+  .square {
+    width: 100px; /* 正方形的宽度 */
+    height: 100px; /* 正方形的高度 */
+    background-color: #3498db; /* 正方形的背景颜色 */
+    position: absolute; /* 绝对定位 */
+  }
+</style>
+</head>
+<body>
+<label for="topPosition">输入正方形顶部位置（像素）:</label>
+<input type="number" id="topPosition" value="50">
+<label for="leftPosition">输入正方形左侧位置（像素）:</label>
+<input type="number" id="leftPosition" value="50">
+<button onclick="drawSquare()">绘制正方形</button>
+<div id="square" class="square"></div>
+<script>
+  function drawSquare() {
+    var topPosition = document.getElementById('topPosition').value;
+    var leftPosition = document.getElementById('leftPosition').value;
+    var square = document.getElementById('square');
+    square.style.top = topPosition + 'px';
+    square.style.left = leftPosition + 'px';
+  }
+</script>
+</body>
+</html>

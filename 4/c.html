@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Square Rotation</title>
+<style>
+  #square {
+    width: 50px;
+    height: 50px;
+    background-color: royalblue;
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    transform-origin: center;
+  }
+  #controls {
+    text-align: center;
+    margin-top: 20px;
+  }
+  button {
+    margin: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div id="square"></div>
+<div id="controls">
+  <button onclick="rotate('X', 10)">绕X轴旋转+45°</button>
+  <button onclick="rotate('X', -10)">绕X轴旋转-45°</button>
+  <button onclick="rotate('Y', 10)">绕Y轴旋转+45°</button>
+  <button onclick="rotate('Y', -10)">绕Y轴旋转-45°</button>
+</div>
+
+<script>
+  // 获取正方形元素
+  var square = document.getElementById('square');
+
+  // 定义旋转函数
+  function rotate(axis, angle) {
+    var currentRotation = parseInt(window.getComputedStyle(square).transform.match(/rotate([XY])(\(\d+deg\))/)[2]);
+    var newRotation = axis === 'X' ? 'rotateX(' + (currentRotation + angle) + 'deg)' : 'rotateY(' + (currentRotation + angle) + 'deg)';
+    square.style.transform = newRotation;
+  }
+</script>
+
+</body>
+</html>

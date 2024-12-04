@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Square Non-uniform Scaling</title>
+<style>
+  #square {
+    width: 50px;
+    height: 50px;
+    background-color: royalblue;
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    transform-origin: center;
+  }
+  #controls {
+    text-align: center;
+    margin-top: 20px;
+  }
+  button {
+    margin: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div id="square"></div>
+<div id="controls">
+  <button onclick="scale('X', 1.1)">沿X轴放大</button>
+  <button onclick="scale('X', 0.9)">沿X轴缩小</button>
+  <button onclick="scale('Y', 1.1)">沿Y轴放大</button>
+  <button onclick="scale('Y', 0.9)">沿Y轴缩小</button>
+</div>
+
+<script>
+  // 获取正方形元素
+  var square = document.getElementById('square');
+
+  // 定义缩放函数
+  function scale(axis, factor) {
+    var currentTransform = window.getComputedStyle(square).transform;
+    var newTransform = '';
+
+    if (axis === 'X') {
+      if (currentTransform.includes('scaleX')) {
+        var currentScaleX = parseFloat(currentTransform.match(/scaleX\((\d*\.?\d+)/)[1]);
+        newTransform = 'scaleX(' + (currentScaleX * factor) + ')';
+      } else {
+        newTransform = 'scaleX(' + factor + ')';
+      }
+    } else if (axis === 'Y') {
+      if (currentTransform.includes('scaleY')) {
+        var currentScaleY = parseFloat(currentTransform.match(/scaleY\((\d*\.?\d+)/)[1]);
+        newTransform = 'scaleY(' + (currentScaleY * factor) + ')';
+      } else {
+        newTransform = 'scaleY(' + factor + ')';
+      }
+    }
+
+    // 如果之前已经有transform，需要合并
+    if (currentTransform && !currentTransform.includes('none')) {
+      newTransform = currentTransform + ' ' + newTransform;
+    }
+
+    square.style.transform = newTransform;
+  }
+</script>
+
+</body>
+</html>
