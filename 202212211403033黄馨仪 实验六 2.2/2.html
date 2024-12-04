@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        #version 300 es
+        in vec4 vPosition;
+        in vec3 vNormal;
+        in vec4 vColor;
+        out vec4 aColor;
+        out vec3 aNormal;
+        out vec3 aLightDir;
+        uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+        uniform vec3 lightPosition;
+
+        void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            aNormal = mat3(transpose(inverse(modelViewMatrix))) * vNormal;
+            aLightDir = lightPosition - vec3(modelViewMatrix * vPosition);
+            aColor = vColor;
+        }
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        #version 300 es
+        precision mediump float;
+        in vec4 aColor;
+        in vec3 aNormal;
+        in vec3 aLightDir;
+        out vec4 fColor;
+
+        uniform vec3 ambientColor;
+        uniform vec3 diffuseColor;
+        uniform vec3 specularColor;
+        uniform float shininess;
+
+        void main() {
+            vec3 normal = normalize(aNormal);
+            vec3 lightDir = normalize(aLightDir);
+            vec3 viewDir = normalize(-vec3(modelViewMatrix * vec4(0,0,0,1) - vec4(aNormal, 1.0)));
+            vec3 reflectDir = reflect(-lightDir, normal);
+
+            float ambient = 1.0;
+            float diff = max(dot(normal, lightDir), 0.0);
+            float spec = pow(max(dot(normal, reflectDir), 0.0), shininess);
+
+            vec3 ambientLight = ambient * ambientColor;
+            vec3 diffuseLight = diff * diffuseColor;
+            vec3 specularLight = spec * specularColor;
+
+            fColor = vec4(ambientLight + diffuseLight + specularLight, 1.0);
+        }
+    </script>
+    <script type="text/javascript" src="webgl-utils.js"></script>
+    <script type="text/javascript" src="initShaders.js"></script>
+    <script type="text/javascript" src="gl-matrix-min.js"></script>
+    <script type="text/javascript" src="objloader.js"></script>
+    <script type="text/javascript">
+        function initWebGL() {
+            var canvas = document.getElementById("gl-canvas");
+            var gl = canvas.getContext("webgl");
+            if (!gl) { 
+                alert("Unable to initialize WebGL. Your browser may not support it.");
+                return;
+            }
+            var program = webglUtils.createProgramFromScripts(gl, [
+                { id: "vertex-shader", tag: "script", type: "x-shader/x-vertex"},
+                { id: "fragment-shader", tag: "script", type: "x-shader/x-fragment"}
+            ]);
+            gl.useProgram(program);
+
+            // Uniform locations
+            var ambientColorLoc = gl.getUniformLocation(program, "ambientColor");
+            var diffuseColorLoc = gl.getUniformLocation(program, "diffuseColor");
+            var specularColorLoc = gl.getUniformLocation(program, "specularColor");
+            var shininessLoc = gl.getUniformLocation(program, "shininess");
+            var lightPositionLoc = gl.getUniformLocation(program, "lightPosition");
+
+            // Set uniform values
+            gl.uniform3f(ambientColorLoc, 0.2, 0.2, 0.2);
+            gl.uniform3f(diffuseColorLoc, 0.8, 0.8, 0.8);
+            gl.uniform3f(specularColorLoc, 1.0, 1.0, 1.0);
+            gl.uniform1f(shininessLoc, 32);
+            gl.uniform3f(lightPositionLoc, 1, 1, 1);
+
+            // Add your WebGL rendering code here...
+        }
+
+        window.onload = initWebGL;
+    </script>
+</head>
+<body>
+    <div>
+        <canvas id="gl-canvas" width="800" height="800">
+            你的浏览器不支持HTML5 Canvas元素
+        </canvas>
+    </div>
+    <div style="border:5px red">
+        <label>选择一个OBJ模型文件</label>
+        <input type="file" id="fileInput"><pre id="fileDisplay"></pre>
+    </div>
+    <div>
+        <label>选择投影方式</label>
+        <input type="radio" id="ortho" name="projtype" value="1" checked><label>正交投影</label>
+        <input type="radio" id="persp" name="projtype" value="2"><label>透视投影</label> <label id="projtyperes"></label>
+    </div>
+    <div>
+        <label>选择绘制方式</label>
+        <input type="radio" id="wire" name="drawtype" value="1" checked><label>线框模式</label>
+        
+        <input type="radio" id="solid" name="drawtype" value="2" ><label>实体模式</label>
+
+        <input type="color" id="objcolor" name="objcolor" value="#ff0000">
+    </div>
+    <div>
+        <label>改变对象位置</label><input type="radio" id="objpos" name="posgrp" value="1" checked><label>物体位置</label>
+        &nbsp;
+        <input type="radio" id="campos" name="posgrp" value="2"><label>相机位置</label>&nbsp;<label
+            id="projtyperes"></label>
+        <br>
+        <label>x pos</label><input type="range" id="xpos" name="xpos" min="-5.0" max="5.0" step="0.1"> &nbsp; 
+        <label>x rot</label><input type="range" id="xrot" name="xrot" min="-360" max="360" step="1.0"><br>
+        <label>y pos</label><input type="range" id="ypos" name="ypos" min="-5.0" max="5.0" step="0.1"> &nbsp;
+        <label>y rot</label><input type="range" id="yrot" name="yrot" min="-360" max="360" step="1.0"><br>
+        <label>z pos</label><input type="range" id="zpos" name="zpos" min="-5.0" max="5.0" step="0.1"> &nbsp;
+        <label>z rot</label><input type="range" id="zrot" name="zrot" min="-360" max="360" step="1.0">
+    </div>
+    <div>
+        <label>环境光反射系数</label>
+        <input type="range" id="ambientR" min="0" max="1" step="0.01" value="0.2">
+        <input type="range" id="ambientG" min="0" max="1" step="0.01" value="0.2">
+        <input type="range" id="ambientB" min="0" max="1" step="0.01" value="0.2">
+    </div>
+    <div>
+        <label>漫反射系数</label>
+        <input type="range" id="diffuseR" min="0" max="1" step="0.01" value="0.8">
+        <input type="range" id="diffuseG" min="0" max="1" step="0.01" value="0.8">
+        <input type="range" id="diffuseB" min="0" max="1" step="0.01" value="0.8">
+    </div>
+    <div>
+        <label>高光反射系数</label>
+        <input type="range" id="specularR" min="0" max="1" step="0.01" value="1.0">
+        <input type="range" id="specularG" min="0" max="1" step="0.01" value="1.0">
+        <input type="range" id="specularB" min="0" max="1" step="0.01" value="1.0">
+    </div>
+    <div>
+        <label>高光亮度系数</label>
+        <input type="range" id="shininess" min="1" max="100" step="1" value="32">
+    </div>
+    <div>
+        <label>光源位置</label>
+        <input type="range" id="lightPosX" min="-5" max="5" step="0.1" value="1">
+        <input type="range" id="lightPosY" min="-5" max="5" step="0.1" value
